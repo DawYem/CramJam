@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CramJam - Contact Support</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .support-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .support-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(28, 28, 28, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .support-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(147, 112, 219, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        .support-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            grid-column: 1 / -1;
+        }
+
+        .support-title .logo {
+            font-size: 3rem;
+            animation: pulse 2s infinite;
+        }
+
+        .support-title h1 {
+            font-size: 2rem;
+            margin: 0;
+            background: linear-gradient(45deg, #9370DB, #8A2BE2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(147, 112, 219, 0.3);
+        }
+
+        .support-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-label {
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-input {
+            padding: 12px 15px;
+            border: 2px solid rgba(147, 112, 219, 0.2);
+            border-radius: 10px;
+            background: rgba(51, 51, 51, 0.5);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #9370DB;
+            box-shadow: 0 0 15px rgba(147, 112, 219, 0.3);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        .submit-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #9370DB, #8A2BE2);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(147, 112, 219, 0.3);
+        }
+
+        .support-info {
+            padding: 20px;
+            background: rgba(51, 51, 51, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(147, 112, 219, 0.2);
+        }
+
+        .support-info p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .support-info a {
+            color: #9370DB;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .support-info a:hover {
+            color: #8A2BE2;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 10px;
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 15px;
+            grid-column: 1 / -1;
+        }
+
+        .error-message {
+            display: none;
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 10px;
+            color: #f44336;
+            text-align: center;
+            margin-bottom: 15px;
+            grid-column: 1 / -1;
+        }
+
+        .todo-footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .todo-footer a {
+            color: #9370DB;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .todo-footer a:hover {
+            color: #8A2BE2;
+        }
+
+        /* Chat widget styles */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #9370DB, #8A2BE2);
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(147, 112, 219, 0.4);
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background: rgba(28, 28, 28, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 12px;
+            background: rgba(147, 112, 219, 0.1);
+            border-bottom: 1px solid rgba(147, 112, 219, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(45deg, #9370DB, #8A2BE2);
+            color: white;
+        }
+
+        .message.support {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .chat-input {
+            padding: 12px;
+            background: rgba(51, 51, 51, 0.5);
+            border-top: 1px solid rgba(147, 112, 219, 0.2);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-field {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(147, 112, 219, 0.2);
+            border-radius: 15px;
+            background: rgba(28, 28, 28, 0.8);
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .chat-input-field:focus {
+            outline: none;
+            border-color: #9370DB;
+        }
+
+        .chat-send {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #9370DB, #8A2BE2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            transform: translateY(-2px);
+        }
+
+        .chat-status {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            padding: 4px;
+        }
+
+        .chat-status.online {
+            color: #4CAF50;
+        }
+
+        .chat-status.offline {
+            color: #f44336;
+        }
+
+        /* Add these styles */
+        .submit-spinner {
+            display: inline-block;
+            margin-left: 10px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .submit-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes" id="backgroundShapes"></div>
+    
+    <div class="support-wrapper">
+        <div class="support-container">
+            <div class="support-title">
+                <span class="logo">💬</span>
+                <h1>Contact Support</h1>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Your message has been sent successfully! We'll get back to you soon.
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                Please fill in all required fields.
+            </div>
+            
+            <form class="support-form" id="supportForm" action="YOUR_GOOGLE_FORM_URL" method="POST" target="_blank">
+                <div class="form-group">
+                    <label class="form-label" for="name">Name</label>
+                    <input type="text" class="form-input" id="name" name="entry.XXXXXXXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" class="form-input" id="email" name="entry.XXXXXXXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="subject">Subject</label>
+                    <select class="form-input form-select" id="subject" name="entry.XXXXXXXX" required>
+                        <option value="">Select a subject</option>
+                        <option value="technical">Technical Issue</option>
+                        <option value="account">Account Help</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="message">Message</label>
+                    <textarea class="form-input form-textarea" id="message" name="entry.XXXXXXXX" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span id="submitText">Send Message</span>
+                    <span id="submitSpinner" class="submit-spinner" style="display: none;">⏳</span>
+                </button>
+            </form>
+
+            <div class="support-info">
+                <p>Need immediate assistance?</p>
+                <p>Email us at: <a href="mailto:support@cramjam.com">support@cramjam.com</a></p>
+                <p>Or visit our <a href="faq.html">FAQ page</a> for quick answers.</p>
+            </div>
+
+            <div class="todo-footer">
+                <p><a href="index.html">Back to Player</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-widget">
+        <button class="chat-button" onclick="toggleChat()">💬</button>
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <div class="chat-title">Live Chat Support</div>
+                <button class="chat-close" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-status online" id="chatStatus">Support is online</div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message support">
+                    Hello! How can I help you today?
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" class="chat-input-field" id="chatInput" placeholder="Type your message...">
+                <button class="chat-send" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create background shapes
+        function createBackgroundShapes() {
+            const container = document.getElementById('backgroundShapes');
+            const supportIcons = ['💬', '📧', '📞', '🔧', '❓', '💡', '📱', '💻', '📋'];
+            
+            // Create floating circles
+            for (let i = 0; i < 15; i++) {
+                const shape = document.createElement('div');
+                shape.className = 'shape';
+                shape.style.width = `${Math.random() * 300 + 150}px`;
+                shape.style.height = shape.style.width;
+                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.top = `${Math.random() * 100}%`;
+                shape.style.animationDelay = `${Math.random() * 15}s`;
+                container.appendChild(shape);
+            }
+
+            // Create floating support icons
+            for (let i = 0; i < 30; i++) {
+                const icon = document.createElement('div');
+                icon.className = 'music-icon';
+                icon.textContent = supportIcons[Math.floor(Math.random() * supportIcons.length)];
+                icon.style.left = `${Math.random() * 100}%`;
+                icon.style.top = `${Math.random() * 100}%`;
+                icon.style.animationDelay = `${Math.random() * 20}s`;
+                icon.style.fontSize = `${Math.random() * 30 + 20}px`;
+                container.appendChild(icon);
+            }
+        }
+
+        // Handle form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value.trim();
+            
+            if (!name || !email || !subject || !message) {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            submitBtn.classList.add('loading');
+            submitText.textContent = 'Sending...';
+            submitSpinner.style.display = 'inline-block';
+
+            // Submit the form
+            const form = document.getElementById('supportForm');
+            form.submit();
+
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Reset form and loading state
+            setTimeout(() => {
+                form.reset();
+                submitBtn.classList.remove('loading');
+                submitText.textContent = 'Send Message';
+                submitSpinner.style.display = 'none';
+            }, 2000);
+        }
+
+        // Chat functionality
+        let chatOpen = false;
+        const chatMessages = [
+            "Hello! How can I help you today?",
+            "I understand your concern. Let me help you with that.",
+            "Could you please provide more details?",
+            "I'll look into this issue right away.",
+            "Thank you for your patience.",
+            "Is there anything else I can help you with?"
+        ];
+
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            const container = document.getElementById('chatContainer');
+            container.classList.toggle('active');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Add user message
+                addMessage(message, 'user');
+                input.value = '';
+                
+                // Simulate support response
+                setTimeout(() => {
+                    const randomResponse = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+                    addMessage(randomResponse, 'support');
+                }, 1000);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Handle Enter key in chat input
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createBackgroundShapes();
+            document.getElementById('supportForm').addEventListener('submit', handleSubmit);
+            
+            // Check support availability
+            const status = document.getElementById('chatStatus');
+            const isOnline = Math.random() > 0.5; // Simulate random online status
+            
+            if (isOnline) {
+                status.textContent = 'Support is online';
+                status.classList.add('online');
+            } else {
+                status.textContent = 'Support is offline';
+                status.classList.add('offline');
+            }
+        });
+    </script>
+</body>
+</html> 

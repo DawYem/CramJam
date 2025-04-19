@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Music Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(147, 112, 219, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        .music-icon {
+            position: absolute;
+            color: rgba(147, 112, 219, 0.2);
+            font-size: 24px;
+            animation: float 20s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(100px, 100px) rotate(180deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+        }
+
+        .main-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .player-container {
+            background: rgba(28, 28, 28, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(147, 112, 219, 0.2);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-card {
+            background: rgba(28, 28, 28, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(147, 112, 219, 0.2);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(147, 112, 219, 0.2);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #9370DB;
+            font-size: 1.2rem;
+        }
+
+        .section-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .section-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .section-content::-webkit-scrollbar-track {
+            background: rgba(147, 112, 219, 0.1);
+            border-radius: 3px;
+        }
+
+        .section-content::-webkit-scrollbar-thumb {
+            background: rgba(147, 112, 219, 0.3);
+            border-radius: 3px;
+        }
+
+        .section-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(147, 112, 219, 0.5);
+        }
+
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #9370DB;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(147, 112, 219, 0.5);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #9370DB;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover {
+            background: #8A2BE2;
+            transform: translateY(-2px);
+        }
+
+        .timer-btn:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            border: 1px solid #9370DB;
+            border-radius: 8px;
+            background: transparent;
+            color: #9370DB;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #9370DB;
+            color: white;
+        }
+
+        .preset-btn.active {
+            background: #9370DB;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #9370DB;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #333;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #9370DB;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #8A2BE2;
+            transform: translateY(-2px);
+        }
+
+        .player {
+            width: 100%;
+            height: 100px;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #videoPlayer {
+            display: none;
+        }
+
+        #youtubePlayer {
+            display: none;
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wave-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 0 20px;
+        }
+
+        .wave-bar {
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to top, #9370DB, #8A2BE2);
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: scaleY(0.3);
+            }
+            50% {
+                transform: scaleY(1);
+            }
+        }
+
+        .visualizer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.5) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visualizer-icon {
+            font-size: 2rem;
+            color: rgba(147, 112, 219, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #333;
+            border-radius: 10px;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #9370DB;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #8A2BE2;
+            transform: scale(1.1);
+        }
+
+        #volumeControl {
+            flex: 1;
+            max-width: 200px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: #555;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        #volumeControl::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #9370DB;
+            cursor: pointer;
+        }
+
+        .playlist {
+            background: #333;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .playlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #2a2a2a;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .playlist-item:hover {
+            background: #3a3a3a;
+        }
+
+        .playlist-item.active {
+            background: #9370DB;
+        }
+
+        .playlist-item button {
+            padding: 5px 10px;
+            background: #FF69B4;
+            font-size: 12px;
+        }
+
+        .playlist-item button:hover {
+            background: #FF1493;
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #333;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #555;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: #9370DB;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .logo {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .control-icon {
+            font-size: 1.2rem;
+        }
+
+        .playlist-icon {
+            font-size: 1rem;
+            margin-right: 8px;
+        }
+
+        .timer-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .preset-icon {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #9370DB;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background: #8A2BE2;
+            transform: translateY(-2px);
+        }
+
+        .logout-icon {
+            font-size: 1.2rem;
+        }
+
+        .logout-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 28, 28, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .chat-section {
+            background: #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #9370DB;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #3a3a3a;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .message.sent {
+            background: #9370DB;
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: #3a3a3a;
+            margin-right: auto;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #9370DB;
+            margin-bottom: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            margin: 0;
+        }
+
+        .groupme-connect {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .groupme-connect input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .groupme-connect button {
+            margin: 0;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes" id="backgroundShapes"></div>
+    <a href="login.html" class="logout-btn">
+        <span class="logout-icon">🚪</span>Logout
+    </a>
+    <div class="logout-toast" id="logoutToast">Logging out...</div>
+    
+    <div class="app-container">
+        <div class="main-section">
+            <div class="player-container">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="logo">🎵</span>
+                        <h1>Study Music Player</h1>
+                    </div>
+                </div>
+
+                <div class="section-content">
+                    <div class="timer-section">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <span class="timer-icon">⏱️</span>
+                                <h2>Pomodoro Timer</h2>
+                            </div>
+                        </div>
+                        <div class="timer-display" id="timerDisplay">25:00</div>
+                        <div class="control-group">
+                            <button class="btn" id="startTimer">
+                                <span class="control-icon">▶️</span>Start
+                            </button>
+                            <button class="btn" id="pauseTimer" disabled>
+                                <span class="control-icon">⏸️</span>Pause
+                            </button>
+                            <button class="btn" id="resetTimer">
+                                <span class="control-icon">🔄</span>Reset
+                            </button>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn preset-btn" data-time="25">
+                                <span class="preset-icon">🍅</span>Pomodoro
+                            </button>
+                            <button class="btn preset-btn" data-time="5">
+                                <span class="preset-icon">☕</span>Short Break
+                            </button>
+                            <button class="btn preset-btn" data-time="15">
+                                <span class="preset-icon">🌴</span>Long Break
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" class="input" id="youtubeUrl" placeholder="🎥 Enter YouTube URL">
+                        <button class="btn" onclick="addYouTubeTrack()">
+                            <span class="section-icon">➕</span>Add YouTube
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="file" id="localFile" accept="audio/*,video/*" style="display: none" multiple>
+                        <button class="btn" onclick="document.getElementById('localFile').click()">
+                            <span class="section-icon">📁</span>Add Local Files
+                        </button>
+                    </div>
+
+                    <div class="now-playing">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <span class="section-icon">🎵</span>
+                                <h3>Now Playing</h3>
+                            </div>
+                        </div>
+                        <p id="currentTrack">No track selected</p>
+                    </div>
+
+                    <div class="player">
+                        <div id="youtubePlayer"></div>
+                        <video id="videoPlayer" controls></video>
+                        <div class="audio-visualizer">
+                            <div class="wave-container" id="waveContainer"></div>
+                            <div class="visualizer-overlay">
+                                <span class="visualizer-icon">🎵</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <button class="btn" onclick="playPrevious()">
+                                <span class="control-icon">⏮️</span>
+                            </button>
+                            <button class="btn" id="playPauseBtn" onclick="togglePlayPause()">
+                                <span class="control-icon">▶️</span>
+                            </button>
+                            <button class="btn" onclick="playNext()">
+                                <span class="control-icon">⏭️</span>
+                            </button>
+                            <input type="range" class="input" id="volumeControl" min="0" max="100" value="100">
+                            <span class="control-icon">🔊</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon">📋</span>
+                        <h3>Playlist</h3>
+                    </div>
+                </div>
+                <div class="section-content" id="playlist">
+                    <!-- Playlist items will be added here -->
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon">💬</span>
+                        <h3>Study Chat</h3>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="groupme-connect">
+                        <input type="text" class="input" id="groupmeToken" placeholder="Enter GroupMe Access Token">
+                        <button class="btn" onclick="connectGroupMe()">Connect</button>
+                    </div>
+                    <div id="chatMessages">
+                        <!-- Messages will appear here -->
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="input" id="messageInput" placeholder="Type your message...">
+                    <button class="btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initTimer } from './js/timer.js';
+        
+        let playlist = [];
+        let currentTrackIndex = -1;
+        let isPlaying = false;
+        let youtubePlayer;
+
+        // Load YouTube IFrame API
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Initialize YouTube Player
+        function onYouTubeIframeAPIReady() {
+            youtubePlayer = new YT.Player('youtubePlayer', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'playsinline': 1,
+                    'enablejsapi': 1,
+                    'origin': window.location.origin,
+                    'fs': 0,
+                    'iv_load_policy': 3,
+                    'controls': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'autohide': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        // Handle YouTube Player Ready
+        function onPlayerReady(event) {
+            console.log('YouTube Player is ready');
+        }
+
+        // Handle YouTube Player State Changes
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                playNext();
+            }
+        }
+
+        // Handle YouTube Player Errors
+        function onPlayerError(event) {
+            console.error('YouTube Player Error:', event.data);
+            alert('Error playing YouTube video. Please try a different URL or check if the video is available.');
+        }
+
+        // Extract YouTube ID from URL
+        function extractYouTubeId(url) {
+            // Handle various YouTube URL formats
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/,
+                /(?:youtube\.com\/embed\/)([^&?]+)/,
+                /(?:youtube\.com\/v\/)([^&?]+)/,
+                /(?:youtube\.com\/e\/)([^&?]+)/,
+                /(?:youtube\.com\/user\/\S+\/)([^&?]+)/,
+                /(?:youtube\.com\/\S+\/)([^&?]+)/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        // Add YouTube Track
+        function addYouTubeTrack() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const videoId = extractYouTubeId(url);
+            
+            if (!videoId) {
+                alert('Please enter a valid YouTube URL. Supported formats:\n- https://www.youtube.com/watch?v=VIDEO_ID\n- https://youtu.be/VIDEO_ID');
+                return;
+            }
+
+            const track = {
+                type: 'youtube',
+                id: videoId,
+                title: 'YouTube Music ' + (playlist.length + 1),
+                url: url
+            };
+            
+            playlist.push(track);
+            updatePlaylistUI();
+            savePlaylist();
+            document.getElementById('youtubeUrl').value = '';
+            
+            if (playlist.length === 1) {
+                playTrack(0);
+            }
+        }
+
+        // Handle local file selection
+        document.getElementById('localFile').addEventListener('change', (e) => {
+            const files = e.target.files;
+            for (let file of files) {
+                const track = {
+                    type: 'local',
+                    url: URL.createObjectURL(file),
+                    title: file.name
+                };
+                playlist.push(track);
+            }
+            updatePlaylistUI();
+            savePlaylist();
+        });
+
+        // Play Track
+        function playTrack(index) {
+            if (index === currentTrackIndex && isPlaying) {
+                togglePlayPause();
+                return;
+            }
+
+            stopPlayback();
+            currentTrackIndex = index;
+            const track = playlist[index];
+
+            if (track.type === 'youtube') {
+                document.getElementById('youtubePlayer').style.display = 'block';
+                document.getElementById('videoPlayer').style.display = 'none';
+                
+                if (youtubePlayer && youtubePlayer.loadVideoById) {
+                    youtubePlayer.loadVideoById({
+                        videoId: track.id,
+                        startSeconds: 0
+                    });
+                    youtubePlayer.playVideo();
+                } else {
+                    console.error('YouTube player not ready');
+                    alert('YouTube player is not ready. Please try again.');
+                }
+            } else {
+                document.getElementById('youtubePlayer').style.display = 'none';
+                document.getElementById('videoPlayer').style.display = 'block';
+                const videoPlayer = document.getElementById('videoPlayer');
+                videoPlayer.src = track.url;
+                videoPlayer.play();
+            }
+
+            isPlaying = true;
+            updatePlayPauseButton();
+            updatePlaylistUI();
+            updateCurrentTrackDisplay();
+        }
+
+        // Toggle Play/Pause
+        function togglePlayPause() {
+            if (currentTrackIndex === -1) return;
+
+            const track = playlist[currentTrackIndex];
+            if (track.type === 'youtube') {
+                if (isPlaying) {
+                    youtubePlayer.pauseVideo();
+                } else {
+                    youtubePlayer.playVideo();
+                }
+            } else {
+                const videoPlayer = document.getElementById('videoPlayer');
+                if (isPlaying) {
+                    videoPlayer.pause();
+                } else {
+                    videoPlayer.play();
+                }
+            }
+
+            isPlaying = !isPlaying;
+            updatePlayPauseButton();
+        }
+
+        // Stop Playback
+        function stopPlayback() {
+            if (youtubePlayer && youtubePlayer.stopVideo) {
+                youtubePlayer.stopVideo();
+            }
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+        }
+
+        // Update Play/Pause Button
+        function updatePlayPauseButton() {
+            const button = document.getElementById('playPauseBtn');
+            button.textContent = isPlaying ? '⏸' : '▶';
+        }
+
+        // Play next track
+        function playNext() {
+            if (playlist.length === 0) return;
+            const nextIndex = (currentTrackIndex + 1) % playlist.length;
+            playTrack(nextIndex);
+        }
+
+        // Play previous track
+        function playPrevious() {
+            if (playlist.length === 0) return;
+            const prevIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            playTrack(prevIndex);
+        }
+
+        // Update current track display
+        function updateCurrentTrackDisplay() {
+            const display = document.getElementById('currentTrack');
+            if (currentTrackIndex !== -1) {
+                const track = playlist[currentTrackIndex];
+                display.innerHTML = `<span class="playlist-icon">${track.type === 'youtube' ? '🎥' : '🎵'}</span>${track.title}`;
+            } else {
+                display.textContent = 'No track selected';
+            }
+        }
+
+        // Update playlist UI
+        function updatePlaylistUI() {
+            const playlistElement = document.getElementById('playlist');
+            playlistElement.innerHTML = '<h3><span class="section-icon">📋</span>Playlist</h3>';
+            
+            playlist.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+                item.innerHTML = `
+                    <span><span class="playlist-icon">${track.type === 'youtube' ? '🎥' : '🎵'}</span>${track.title}</span>
+                    <button onclick="removeTrack(${index})"><span class="playlist-icon">🗑️</span>Remove</button>
+                `;
+                item.addEventListener('click', () => playTrack(index));
+                playlistElement.appendChild(item);
+            });
+        }
+
+        // Remove track from playlist
+        function removeTrack(index) {
+            playlist.splice(index, 1);
+            if (index === currentTrackIndex) {
+                stopPlayback();
+                currentTrackIndex = -1;
+            } else if (index < currentTrackIndex) {
+                currentTrackIndex--;
+            }
+            updatePlaylistUI();
+            savePlaylist();
+        }
+
+        // Save playlist to localStorage
+        function savePlaylist() {
+            localStorage.setItem('studyPlayerPlaylist', JSON.stringify(playlist));
+        }
+
+        // Load playlist from localStorage
+        function loadPlaylist() {
+            const saved = localStorage.getItem('studyPlayerPlaylist');
+            if (saved) {
+                playlist = JSON.parse(saved);
+                updatePlaylistUI();
+            }
+        }
+
+        // Volume control
+        document.getElementById('volumeControl').addEventListener('input', (e) => {
+            const volume = e.target.value;
+            if (youtubePlayer && youtubePlayer.setVolume) {
+                youtubePlayer.setVolume(volume);
+            }
+            document.getElementById('videoPlayer').volume = volume / 100;
+        });
+
+        // Pomodoro Timer
+        let timer;
+        let timeLeft;
+        let isRunning = false;
+        let currentPreset = 25;
+
+        function updateTimerDisplay(minutes, seconds) {
+            const display = document.getElementById('timerDisplay');
+            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('startTimer').disabled = true;
+                document.getElementById('pauseTimer').disabled = false;
+                
+                timer = setInterval(() => {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    updateTimerDisplay(minutes, seconds);
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        isRunning = false;
+                        document.getElementById('startTimer').disabled = false;
+                        document.getElementById('pauseTimer').disabled = true;
+                        // Play notification sound
+                        new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+                document.getElementById('startTimer').disabled = false;
+                document.getElementById('pauseTimer').disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            timeLeft = currentPreset * 60;
+            updateTimerDisplay(currentPreset, 0);
+            document.getElementById('startTimer').disabled = false;
+            document.getElementById('pauseTimer').disabled = true;
+        }
+
+        function setPreset(minutes) {
+            currentPreset = minutes;
+            resetTimer();
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.time) === minutes);
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('startTimer').addEventListener('click', startTimer);
+        document.getElementById('pauseTimer').addEventListener('click', pauseTimer);
+        document.getElementById('resetTimer').addEventListener('click', resetTimer);
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => setPreset(parseInt(btn.dataset.time)));
+        });
+
+        // Background Animation
+        function createBackgroundShapes() {
+            const container = document.getElementById('backgroundShapes');
+            const musicIcons = ['🎵', '🎶', '🎼', '🎹', '🎸', '🎷', '🎺', '🎻', '🥁'];
+            
+            // Create floating circles
+            for (let i = 0; i < 10; i++) {
+                const shape = document.createElement('div');
+                shape.className = 'shape';
+                shape.style.width = `${Math.random() * 200 + 100}px`;
+                shape.style.height = shape.style.width;
+                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.top = `${Math.random() * 100}%`;
+                shape.style.animationDelay = `${Math.random() * 15}s`;
+                container.appendChild(shape);
+            }
+
+            // Create floating music icons
+            for (let i = 0; i < 20; i++) {
+                const icon = document.createElement('div');
+                icon.className = 'music-icon';
+                icon.textContent = musicIcons[Math.floor(Math.random() * musicIcons.length)];
+                icon.style.left = `${Math.random() * 100}%`;
+                icon.style.top = `${Math.random() * 100}%`;
+                icon.style.animationDelay = `${Math.random() * 20}s`;
+                icon.style.fontSize = `${Math.random() * 20 + 16}px`;
+                container.appendChild(icon);
+            }
+        }
+
+        // Add logout function
+        function logout() {
+            localStorage.removeItem('sessionToken');
+            window.location.href = 'login.html';
+        }
+
+        // Check if user is logged in
+        function checkLogin() {
+            const sessionToken = localStorage.getItem('sessionToken');
+            if (!sessionToken) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize components
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkLogin()) {
+                createBackgroundShapes();
+                loadPlaylist();
+                createWaveBars();
+                initTimer();
+                initChat();
+            }
+        });
+
+        // GroupMe Chat Integration
+        let groupMeToken = localStorage.getItem('groupMeToken');
+        let groupMeGroupId = null;
+        let groupMeUserId = null;
+
+        function connectGroupMe() {
+            const token = document.getElementById('groupmeToken').value.trim();
+            if (!token) {
+                alert('Please enter your GroupMe Access Token');
+                return;
+            }
+
+            // Save token
+            localStorage.setItem('groupMeToken', token);
+            groupMeToken = token;
+
+            // Get user info
+            fetch('https://api.groupme.com/v3/users/me?token=' + token)
+                .then(response => response.json())
+                .then(data => {
+                    groupMeUserId = data.response.id;
+                    // Get or create study group
+                    setupStudyGroup();
+                })
+                .catch(error => {
+                    console.error('Error connecting to GroupMe:', error);
+                    alert('Failed to connect to GroupMe. Please check your token.');
+                });
+        }
+
+        function setupStudyGroup() {
+            // Search for existing study group
+            fetch('https://api.groupme.com/v3/groups?token=' + groupMeToken)
+                .then(response => response.json())
+                .then(data => {
+                    const studyGroup = data.response.find(group => 
+                        group.name.includes('Study Group') || 
+                        group.name.includes('University Study')
+                    );
+
+                    if (studyGroup) {
+                        groupMeGroupId = studyGroup.id;
+                        loadMessages();
+                    } else {
+                        createStudyGroup();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error finding study group:', error);
+                    alert('Failed to find study group');
+                });
+        }
+
+        function createStudyGroup() {
+            fetch('https://api.groupme.com/v3/groups?token=' + groupMeToken, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: 'University Study Group',
+                    description: 'Study group for university students',
+                    share: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                groupMeGroupId = data.response.id;
+                loadMessages();
+            })
+            .catch(error => {
+                console.error('Error creating study group:', error);
+                alert('Failed to create study group');
+            });
+        }
+
+        function loadMessages() {
+            if (!groupMeGroupId) return;
+
+            fetch(`https://api.groupme.com/v3/groups/${groupMeGroupId}/messages?token=${groupMeToken}`)
+                .then(response => response.json())
+                .then(data => {
+                    const messages = data.response.messages;
+                    displayMessages(messages);
+                })
+                .catch(error => {
+                    console.error('Error loading messages:', error);
+                });
+        }
+
+        function displayMessages(messages) {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+
+            messages.reverse().forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${message.user_id === groupMeUserId ? 'sent' : 'received'}`;
+                messageElement.innerHTML = `
+                    <div class="message-sender">${message.name}</div>
+                    <div class="message-text">${message.text}</div>
+                `;
+                chatMessages.appendChild(messageElement);
+            });
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            if (!groupMeGroupId) {
+                alert('Please connect to GroupMe first');
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+
+            fetch(`https://api.groupme.com/v3/groups/${groupMeGroupId}/messages?token=${groupMeToken}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: {
+                        text: message,
+                        source_guid: Date.now().toString()
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(() => {
+                messageInput.value = '';
+                loadMessages();
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Failed to send message');
+            });
+        }
+
+        // Auto-load messages if already connected
+        if (groupMeToken) {
+            document.getElementById('groupmeToken').value = groupMeToken;
+            connectGroupMe();
+        }
+
+        // Handle enter key in message input
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Create wave bars
+        function createWaveBars() {
+            const container = document.getElementById('waveContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.animationDelay = `${i * 0.02}s`;
+                container.appendChild(bar);
+            }
+        }
+    </script>
+</body>
+</html> 
