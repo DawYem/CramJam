@@ -1,0 +1,16 @@
+# 📚 CramJam
+
+CramJam is a productivity web application designed to help students and professionals optimize their study sessions with tools like a Pomodoro timer, a music player for MP3/MP4 files, and seamless motivation. Whether you're prepping for finals or grinding through work tasks, CramJam keeps you focused and in flow.
+
+## 🚀 Features
+
+- ⏱️ **Pomodoro Timer** — Use the classic Pomodoro technique to stay productive.
+- 🎵 **Music Player** — Upload and play your own MP3/MP4 files for concentration.
+- 💬 **Encouragement Notes** — Get motivational messages to stay inspired.
+- 🔒 **User Authentication** — Secure account system for tracking individual progress.
+
+## 🛠️ Tech Stack
+
+- HTML  
+- CSS  
+- JavaScript  
