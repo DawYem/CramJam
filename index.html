@@ -300,6 +300,81 @@
             margin-bottom: 20px;
         }
 
+        .encouragement-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .encouragement-text {
+            flex: 1;
+        }
+
+        .encouragement-btn {
+            background: rgba(147, 112, 219, 0.2);
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #b19cd9;
+            transition: all 0.3s ease;
+        }
+
+        .encouragement-btn:hover {
+            background: rgba(147, 112, 219, 0.3);
+            transform: rotate(180deg);
+        }
+
+        .encouragement-btn:active {
+            transform: scale(0.95) rotate(180deg);
+        }
+
+        .encouragement-btn-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .tooltip {
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin-right: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent transparent rgba(0, 0, 0, 0.8);
+        }
+
+        .encouragement-btn:hover + .tooltip,
+        .encouragement-btn:focus + .tooltip {
+            opacity: 1;
+            visibility: visible;
+            right: calc(100% + 5px);
+        }
+
         .encouragement-text {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
@@ -347,14 +422,16 @@
                                 <span class="control-icon">🔄</span>Reset
                             </button>
                         </div>
-                        <div class="control-group">
-                            <button class="btn preset-btn" data-time="25">
+                        <div class="timer-type" id="timerType">Pomodoro</div>
+                        <div class="pomodoro-count" id="pomodoroCount"></div>
+                        <div class="control-group timer-modes">
+                            <button class="btn preset-btn active" id="pomodoroBtn">
                                 <span class="preset-icon">🍅</span>Pomodoro
                             </button>
-                            <button class="btn preset-btn" data-time="5">
+                            <button class="btn preset-btn" id="shortBreakBtn">
                                 <span class="preset-icon">☕</span>Short Break
                             </button>
-                            <button class="btn preset-btn" data-time="15">
+                            <button class="btn preset-btn" id="longBreakBtn">
                                 <span class="preset-icon">🌴</span>Long Break
                             </button>
                         </div>
@@ -419,7 +496,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <span class="section-icon">📋</span>
-                        <h3>Playlist DEMO-COMING SOON</h3>
+                        <h3>Playlist DEMO</h3>
                     </div>
                 </div>
                 <div class="encouragement-message" id="playlistEncouragement">Your study playlist is ready! Let's make progress! 🚀</div>
@@ -440,18 +517,32 @@
                         <div id="encouragementMessage" class="encouragement-text">
                             You're capable of more than you know! Keep pushing forward! 💪
                         </div>
+                        <div class="encouragement-btn-wrapper">
+                            <button id="refreshEncouragement" class="encouragement-btn" aria-label="Get new encouragement">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                    <path d="M3 3v5h5"></path>
+                                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+                                    <path d="M16 16h5v5"></path>
+                                </svg>
+                            </button>
+                            <span class="tooltip">Click for more encouragement</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Main application script -->
     <script type="module">
+        // Import modules
         import { initTimer } from './js/timer.js';
         import { initChat } from './js/chat.js';
         import { 
             addYouTubeTrack, 
-            loadYouTubeAPI
+            loadYouTubeAPI,
+            initYouTubePlayer
         } from './js/youtube.js';
         import { 
             playTrack, 
@@ -463,33 +554,72 @@
             createWaveBars,
             updateCurrentTrackDisplay,
             savePlaylist,
-            initYouTubePlayer
+            updatePlaylistUI
         } from './js/player.js';
         import { 
             initEncouragement,
-            updateEncouragementMessages
+            updateEncouragementMessages,
+            showNotification
         } from './js/encouragement.js';
+        
+        // Make functions available globally
+        window.playTrack = playTrack;
+        window.togglePlayPause = togglePlayPause;
+        window.playNext = playNext;
+        window.playPrevious = playPrevious;
+        window.removeTrack = removeTrack;
+        window.loadPlaylist = loadPlaylist;
+        window.savePlaylist = savePlaylist;
+        window.updatePlaylistUI = updatePlaylistUI;
+        window.showNotification = showNotification;
 
-        // Initialize YouTube API and player
-        loadYouTubeAPI().then(() => {
-            console.log('YouTube API loaded');
-            return initYouTubePlayer();
-        }).catch(error => {
-            console.error('Error loading YouTube API:', error);
-        });
-
-        // Initialize components
-        document.addEventListener('DOMContentLoaded', () => {
+        // Check if user is logged in
+        function checkLogin() {
+            // In a real app, you would check authentication status
+            // For now, we'll just return true to allow access
+            return true;
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
             if (checkLogin()) {
-                // Initialize timer independently
-                initTimer();
-                
-                // Initialize other components
-                createBackgroundShapes();
-                loadPlaylist();
-                createWaveBars();
-                initChat();
-                initEncouragement();
+                try {
+                    // Initialize YouTube API and player
+                    console.log('Loading YouTube API...');
+                    await loadYouTubeAPI();
+                    console.log('YouTube API loaded, initializing player...');
+                    await initYouTubePlayer();
+                    console.log('YouTube player initialized');
+                    
+                    // Initialize other components
+                    console.log('Initializing other components...');
+                    initTimer();
+                    createBackgroundShapes();
+                    loadPlaylist();
+                    createWaveBars();
+                    initChat();
+                    initEncouragement();
+                    
+                    // Show welcome message
+                    console.log('Showing welcome message...');
+                    setTimeout(() => {
+                        showNotification('Welcome to CramJam! 🎵 Start by adding some music or setting a timer.');
+                    }, 1000);
+                    
+                    console.log('Initialization complete');
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    showNotification('Error initializing application: ' + (error.message || 'Unknown error'));
+                    
+                    // Show more detailed error for YouTube API issues
+                    if (error.message.includes('YouTube API')) {
+                        showNotification('Please check your internet connection and refresh the page.');
+                    }
+                }
+            } else {
+                // Redirect to login page if not authenticated
+                console.log('User not logged in, redirecting to login page...');
+                window.location.href = 'login.html';
             }
         });
 
@@ -502,88 +632,132 @@
                 window.playlist = [];
             }
 
-            Array.from(files).forEach(file => {
-                const url = URL.createObjectURL(file);
-                const type = file.type.startsWith('audio/') ? 'audio' : 'video';
-                
+            let addedCount = 0;
+            Array.from(files).forEach((file, index) => {
+                // Only process audio files
+                if (!file.type.startsWith('audio/')) return;
+
                 const track = {
-                    type: type,
-                    url: url,
-                    title: file.name,
-                    file: file
+                    id: 'local_' + Date.now() + '_' + index,
+                    type: 'audio',
+                    title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+                    url: URL.createObjectURL(file)
                 };
 
                 window.playlist.push(track);
+                addedCount++;
             });
 
-            if (typeof window.updatePlaylistUI === 'function') {
-                window.updatePlaylistUI();
-            }
-
-            // Play first track if it's the only one
-            if (window.playlist.length === files.length && typeof window.playTrack === 'function') {
-                window.playTrack(0);
-            }
-
-            savePlaylist();
-        });
-
-        // Make functions available globally
-        window.updateCurrentTrackDisplay = updateCurrentTrackDisplay;
-        window.addYouTubeTrack = async function() {
-            const urlInput = document.getElementById('youtubeUrl');
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                alert('Please enter a YouTube URL');
-                return;
-            }
-
-            try {
-                // Ensure YouTube API is loaded
-                await loadYouTubeAPI();
-                // Initialize player if needed
-                if (!youtubePlayer) {
-                    initializeYouTubePlayer();
-                }
-                // Add track to playlist
-                addYouTubeTrack(url);
-                urlInput.value = '';
+            if (addedCount > 0) {
+                // Save playlist and update UI
                 savePlaylist();
-                // Update playlist encouragement
-                updateEncouragementMessages('playlistEncouragement', 'playlist');
-            } catch (error) {
-                console.error('Error adding YouTube video:', error);
-                alert('Error adding YouTube video: ' + error.message);
+                updatePlaylistUI();
+
+                // Play the first track if it's the only one
+                if (window.playlist.length === addedCount) {
+                    playTrack(0);
+                }
+                
+                // Show success message
+                showNotification(`Added ${addedCount} file(s) to playlist`);
+            } else {
+                showNotification('No audio files were added. Please select valid audio files.');
             }
-        };
 
-        window.playTrack = playTrack;
-        window.togglePlayPause = togglePlayPause;
-        window.playNext = playNext;
-        window.playPrevious = playPrevious;
-        window.removeTrack = removeTrack;
-        window.connectGroupMe = connectGroupMe;
-        window.sendMessage = sendMessage;
-        window.getNewEncouragement = function() {
-            updateEncouragementMessages('encouragementMessage', 'timer');
-        };
-
-        // Add logout function
-        window.logout = function() {
-            localStorage.removeItem('sessionToken');
-            window.location.href = 'login.html';
-        };
-
-        // Check if user is logged in
-        function checkLogin() {
-            const sessionToken = localStorage.getItem('sessionToken');
-            if (!sessionToken) {
-                window.location.href = 'login.html';
-                return false;
-            }
-            return true;
+            // Reset file input
+            event.target.value = '';
+        });
+        
+        // Handle YouTube URL form submission
+        const youtubeForm = document.querySelector('form');
+        if (youtubeForm) {
+            youtubeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const urlInput = document.getElementById('youtubeUrl');
+                const url = urlInput?.value.trim();
+                
+                if (url) {
+                    addYouTubeTrack(url)
+                        .then(() => {
+                            urlInput.value = '';
+                        })
+                        .catch(error => {
+                            console.error('Error adding YouTube track:', error);
+                            showNotification('Error adding YouTube video: ' + (error.message || 'Unknown error'));
+                        });
+                }
+            });
         }
+
+        // Update the addYouTubeTrack function if it exists
+        if (window.addYouTubeTrack) {
+            window.addYouTubeTrack = async function() {
+                const urlInput = document.getElementById('youtubeUrl');
+                const url = urlInput?.value.trim();
+                
+                if (!url) {
+                    alert('Please enter a YouTube URL');
+                    return;
+                }
+
+                try {
+                    // Ensure YouTube API is loaded
+                    await loadYouTubeAPI();
+                    // Initialize player if needed
+                    if (!window.youtubePlayer) {
+                        await initYouTubePlayer();
+                    }
+                    // Add track to playlist
+                    await addYouTubeTrack(url);
+                    urlInput.value = '';
+                    savePlaylist();
+                    // Update playlist encouragement
+                    updateEncouragementMessages('playlistEncouragement', 'playlist');
+                } catch (error) {
+                    console.error('Error adding YouTube video:', error);
+                    alert('Error adding YouTube video: ' + (error.message || 'Unknown error'));
+                }
+            };
+        }
+
+        // These are already defined at the top of the file, no need to redefine them
+        // window.playTrack = playTrack;
+        // window.togglePlayPause = togglePlayPause;
+        // window.playNext = playNext;
+        // window.playPrevious = playPrevious;
+        // window.removeTrack = removeTrack;
+        
+        // GroupMe functions - only define if they don't exist
+        if (!window.connectGroupMe) {
+            window.connectGroupMe = function() {
+                alert('GroupMe integration not implemented yet');
+            };
+        }
+        
+        if (!window.sendMessage) {
+            window.sendMessage = function() {
+                alert('Send message function not implemented yet');
+            };
+        }
+
+        if (!window.getNewEncouragement) {
+            window.getNewEncouragement = function() {
+                updateEncouragementMessages('encouragementMessage', 'timer');
+            };
+        }
+
+        // Add logout function if it doesn't exist
+        if (!window.logout) {
+            window.logout = function() {
+                localStorage.removeItem('sessionToken');
+                window.location.href = 'login.html';
+            };
+        }
+
+        // Check if user is logged in - use the one defined at the top of the file
+        // function checkLogin() {
+        //     return true; // Already defined at the top
+        // }
 
         // Create background shapes
         function createBackgroundShapes() {
@@ -668,22 +842,34 @@
             "The more you know, the more you can achieve! 🎯"
         ];
 
-        // Update encouragement message periodically
-        setInterval(() => {
+        // Function to update encouragement message
+        function updateEncouragementMessage() {
             const randomQuote = encouragementQuotes[Math.floor(Math.random() * encouragementQuotes.length)];
             const messageElement = document.getElementById('encouragementMessage');
             if (messageElement) {
                 messageElement.textContent = randomQuote;
+                messageElement.style.animation = 'fadeIn 0.5s ease-in-out';
+                setTimeout(() => {
+                    messageElement.style.animation = '';
+                }, 500);
             }
-        }, 30000); // Update every 30 seconds
+        }
+
+        // Update encouragement message when button is clicked
+        const refreshBtn = document.getElementById('refreshEncouragement');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                updateEncouragementMessage();
+            });
+        }
+
+        // Update encouragement message periodically
+        setInterval(updateEncouragementMessage, 30000); // Change message every 30 seconds
 
         // Initialize message on page load
         document.addEventListener('DOMContentLoaded', () => {
-            const randomQuote = encouragementQuotes[Math.floor(Math.random() * encouragementQuotes.length)];
-            const messageElement = document.getElementById('encouragementMessage');
-            if (messageElement) {
-                messageElement.textContent = randomQuote;
-            }
+            updateEncouragementMessage();
         });
     </script>
 </body>

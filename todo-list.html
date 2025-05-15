@@ -377,21 +377,37 @@
 
         // Format date for display
         function formatDate(dateString) {
-            const date = new Date(dateString);
+            // Parse the input date string (YYYY-MM-DD format)
+            const [year, month, day] = dateString.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
-            if (date.getTime() === today.getTime()) {
-                return 'Today';
-            }
             
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
             
-            if (date.getTime() === tomorrow.getTime()) {
+            // Compare dates using date components to avoid timezone issues
+            if (date.getFullYear() === today.getFullYear() &&
+                date.getMonth() === today.getMonth() &&
+                date.getDate() === today.getDate()) {
+                return 'Today';
+            }
+            
+            if (date.getFullYear() === tomorrow.getFullYear() &&
+                date.getMonth() === tomorrow.getMonth() &&
+                date.getDate() === tomorrow.getDate()) {
                 return 'Tomorrow';
             }
             
+            // For future dates, show relative days if within a week
+            const diffInDays = Math.floor((date - today) / (1000 * 60 * 60 * 24));
+            if (diffInDays < 7 && diffInDays > 0) {
+                const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                return weekdays[date.getDay()];
+            }
+            
+            // For dates further in the future or past
             return date.toLocaleDateString('en-US', { 
                 month: 'short', 
                 day: 'numeric',
@@ -467,11 +483,24 @@
         function updateStats() {
             const tasks = JSON.parse(localStorage.getItem('cramjamTasks') || '[]');
             const completed = tasks.filter(task => task.completed).length;
+            
+            // Get today's date at midnight in local time
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const overdue = tasks.filter(task => !task.completed && new Date(task.date) < today).length;
             
-            document.getElementById('totalTasks').textContent = `${tasks.length} tasks`;
+            // Count overdue tasks (incomplete tasks with date before today)
+            const overdue = tasks.filter(task => {
+                if (task.completed) return false;
+                
+                // Parse the task date (YYYY-MM-DD format)
+                const [year, month, day] = task.date.split('-').map(Number);
+                const taskDate = new Date(year, month - 1, day);
+                
+                // Compare dates (ignoring time)
+                return taskDate < today;
+            }).length;
+            
+            document.getElementById('totalTasks').textContent = `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`;
             document.getElementById('completedTasks').textContent = `${completed} completed`;
             document.getElementById('overdueTasks').textContent = `${overdue} overdue`;
         }
@@ -483,13 +512,21 @@
             
             // Set minimum date to today
             const dateInput = document.getElementById('todoDate');
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.min = today;
-            dateInput.value = today;
+            const today = new Date();
+            
+            // Format today's date as YYYY-MM-DD in local timezone
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayString = `${year}-${month}-${day}`;
+            
+            dateInput.min = todayString;
+            dateInput.value = todayString;
             
             // Add form submission handler
             document.getElementById('todoForm').addEventListener('submit', addTask);
         });
     </script>
 </body>
+</html>
 </html> 
