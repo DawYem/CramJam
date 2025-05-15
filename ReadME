@@ -1,4 +1,4 @@
-# 📚 Updated CramJam Hackathon Project
+# 📚 Updated CramJam AI Hackathon Project
 
 CramJam is a productivity web application designed to help students and professionals optimize their study sessions with tools like a Pomodoro timer, a music player for MP3/MP4 files, and seamless motivation. Whether you're prepping for finals or grinding through work tasks, CramJam keeps you focused and in flow.
 
@@ -12,6 +12,8 @@ CramJam is a productivity web application designed to help students and professi
 - HTML  
 - CSS  
 - JavaScript  
-
+- Windsurf
+- Cursor
+- Vercel
 
 ##Hosted on Vercel, check out CramJam : cram-jam-one.vercel.app
