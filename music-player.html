@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Music Player</title>
+    <title>CramJam</title>
     <style>
         * {
             margin: 0;
@@ -102,7 +102,7 @@
 
         .section-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 10px;
@@ -112,6 +112,7 @@
         .section-title {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             color: #9370DB;
             font-size: 1.2rem;
@@ -373,6 +374,7 @@
             max-width: 200px;
             height: 5px;
             -webkit-appearance: none;
+            appearance: none;
             background: #555;
             border-radius: 5px;
             outline: none;
@@ -622,10 +624,82 @@
             margin: 0;
             white-space: nowrap;
         }
+
+        /* Navigation Menu Styles */
+        .nav-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(28, 28, 28, 0.9);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(147, 112, 219, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(147, 112, 219, 0.3);
+        }
+
+        .nav-btn.active {
+            background: #9370DB;
+            border-color: #9370DB;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="background-shapes" id="backgroundShapes"></div>
+    
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a href="index.html" class="nav-btn">
+            <span class="nav-icon">🏠</span>Home
+        </a>
+        <a href="music-player.html" class="nav-btn active">
+            <span class="nav-icon">🎵</span>Music Player
+        </a>
+        <a href="todo-list.html" class="nav-btn">
+            <span class="nav-icon">📝</span>Todo List
+        </a>
+        <a href="contact-support.html" class="nav-btn">
+            <span class="nav-icon">💬</span>Support
+        </a>
+    </nav>
+    
     <a href="login.html" class="logout-btn">
         <span class="logout-icon">🚪</span>Logout
     </a>
@@ -637,7 +711,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <span class="logo">🎵</span>
-                        <h1>Study Music Player</h1>
+                        <h1>CramJam</h1>
                     </div>
                 </div>
 
@@ -676,14 +750,14 @@
 
                     <div class="input-group">
                         <input type="text" class="input" id="youtubeUrl" placeholder="🎥 Enter YouTube URL">
-                        <button class="btn" onclick="addYouTubeTrack()">
+                        <button class="btn" id="addYouTubeBtn">
                             <span class="section-icon">➕</span>Add YouTube
                         </button>
                     </div>
 
                     <div class="input-group">
                         <input type="file" id="localFile" accept="audio/*,video/*" style="display: none" multiple>
-                        <button class="btn" onclick="document.getElementById('localFile').click()">
+                        <button class="btn" id="addLocalBtn">
                             <span class="section-icon">📁</span>Add Local Files
                         </button>
                     </div>
@@ -711,13 +785,13 @@
 
                     <div class="controls">
                         <div class="control-group">
-                            <button class="btn" onclick="playPrevious()">
+                            <button class="btn" id="prevBtn">
                                 <span class="control-icon">⏮️</span>
                             </button>
-                            <button class="btn" id="playPauseBtn" onclick="togglePlayPause()">
+                            <button class="btn" id="playPauseBtn">
                                 <span class="control-icon">▶️</span>
                             </button>
-                            <button class="btn" onclick="playNext()">
+                            <button class="btn" id="nextBtn">
                                 <span class="control-icon">⏭️</span>
                             </button>
                             <input type="range" class="input" id="volumeControl" min="0" max="100" value="100">
@@ -745,7 +819,7 @@
                 <div class="section-header">
                     <div class="section-title">
                         <span class="section-icon">💬</span>
-                        <h3>Study Chat</h3>
+                        <h3>Study Chat <span style="color: #9370DB; font-size: 0.8em; font-weight: normal;">(Coming Soon)</span></h3>
                     </div>
                 </div>
                 <div class="section-content">
@@ -765,9 +839,7 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initTimer } from './js/timer.js';
-        
+    <script>
         let playlist = [];
         let currentTrackIndex = -1;
         let isPlaying = false;
@@ -779,8 +851,8 @@
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Initialize YouTube Player
-        function onYouTubeIframeAPIReady() {
+        // Initialize YouTube Player (global function)
+        window.onYouTubeIframeAPIReady = function() {
             youtubePlayer = new YT.Player('youtubePlayer', {
                 height: '100%',
                 width: '100%',
@@ -806,7 +878,7 @@
                     'onError': onPlayerError
                 }
             });
-        }
+        };
 
         // Handle YouTube Player Ready
         function onPlayerReady(event) {
@@ -823,7 +895,21 @@
         // Handle YouTube Player Errors
         function onPlayerError(event) {
             console.error('YouTube Player Error:', event.data);
-            alert('Error playing YouTube video. Please try a different URL or check if the video is available.');
+            const errorMessages = {
+                2: 'The request contains an invalid parameter value.',
+                5: 'The requested content cannot be played in an HTML5 player.',
+                100: 'The video requested was not found.',
+                101: 'The owner of the requested video does not allow it to be played in embedded players.',
+                150: 'The owner of the requested video does not allow it to be played in embedded players.'
+            };
+            
+            const message = errorMessages[event.data] || 'Unknown error occurred';
+            alert('YouTube Player Error: ' + message + '. Please try a different video.');
+            
+            // Try to play next track if available
+            if (playlist.length > 1) {
+                playNext();
+            }
         }
 
         // Extract YouTube ID from URL
@@ -905,21 +991,31 @@
                 document.getElementById('videoPlayer').style.display = 'none';
                 
                 if (youtubePlayer && youtubePlayer.loadVideoById) {
-                    youtubePlayer.loadVideoById({
-                        videoId: track.id,
-                        startSeconds: 0
-                    });
-                    youtubePlayer.playVideo();
+                    try {
+                        youtubePlayer.loadVideoById({
+                            videoId: track.id,
+                            startSeconds: 0
+                        });
+                        youtubePlayer.playVideo();
+                    } catch (error) {
+                        console.error('Error loading YouTube video:', error);
+                        alert('Error loading YouTube video. Please check your internet connection.');
+                        return;
+                    }
                 } else {
                     console.error('YouTube player not ready');
-                    alert('YouTube player is not ready. Please try again.');
+                    alert('YouTube player is not ready. Please wait a moment and try again.');
+                    return;
                 }
             } else {
                 document.getElementById('youtubePlayer').style.display = 'none';
                 document.getElementById('videoPlayer').style.display = 'block';
                 const videoPlayer = document.getElementById('videoPlayer');
                 videoPlayer.src = track.url;
-                videoPlayer.play();
+                videoPlayer.play().catch(error => {
+                    console.error('Error playing local file:', error);
+                    alert('Error playing audio file. Please check the file format.');
+                });
             }
 
             isPlaying = true;
@@ -933,23 +1029,34 @@
             if (currentTrackIndex === -1) return;
 
             const track = playlist[currentTrackIndex];
-            if (track.type === 'youtube') {
-                if (isPlaying) {
-                    youtubePlayer.pauseVideo();
+            try {
+                if (track.type === 'youtube') {
+                    if (youtubePlayer && youtubePlayer.getPlayerState) {
+                        if (isPlaying) {
+                            youtubePlayer.pauseVideo();
+                        } else {
+                            youtubePlayer.playVideo();
+                        }
+                    } else {
+                        console.error('YouTube player not ready');
+                        return;
+                    }
                 } else {
-                    youtubePlayer.playVideo();
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    if (isPlaying) {
+                        videoPlayer.pause();
+                    } else {
+                        videoPlayer.play().catch(error => {
+                            console.error('Error playing audio:', error);
+                        });
+                    }
                 }
-            } else {
-                const videoPlayer = document.getElementById('videoPlayer');
-                if (isPlaying) {
-                    videoPlayer.pause();
-                } else {
-                    videoPlayer.play();
-                }
-            }
 
-            isPlaying = !isPlaying;
-            updatePlayPauseButton();
+                isPlaying = !isPlaying;
+                updatePlayPauseButton();
+            } catch (error) {
+                console.error('Error toggling playback:', error);
+            }
         }
 
         // Stop Playback
@@ -1001,10 +1108,19 @@
             playlist.forEach((track, index) => {
                 const item = document.createElement('div');
                 item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
-                item.innerHTML = `
-                    <span><span class="playlist-icon">${track.type === 'youtube' ? '🎥' : '🎵'}</span>${track.title}</span>
-                    <button onclick="removeTrack(${index})"><span class="playlist-icon">🗑️</span>Remove</button>
-                `;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '<span class="playlist-icon">🗑️</span>Remove';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering playTrack
+                    removeTrack(index);
+                });
+                
+                const trackInfo = document.createElement('span');
+                trackInfo.innerHTML = `<span class="playlist-icon">${track.type === 'youtube' ? '🎥' : '🎵'}</span>${track.title}`;
+                
+                item.appendChild(trackInfo);
+                item.appendChild(removeBtn);
                 item.addEventListener('click', () => playTrack(index));
                 playlistElement.appendChild(item);
             });
@@ -1048,7 +1164,7 @@
 
         // Pomodoro Timer
         let timer;
-        let timeLeft;
+        let timeLeft = 25 * 60; // Initialize with 25 minutes
         let isRunning = false;
         let currentPreset = 25;
 
@@ -1058,6 +1174,10 @@
         }
 
         function startTimer() {
+            if (timeLeft === undefined || timeLeft <= 0) {
+                timeLeft = currentPreset * 60;
+            }
+            
             if (!isRunning) {
                 isRunning = true;
                 document.getElementById('startTimer').disabled = true;
@@ -1074,8 +1194,31 @@
                         isRunning = false;
                         document.getElementById('startTimer').disabled = false;
                         document.getElementById('pauseTimer').disabled = true;
-                        // Play notification sound
-                        new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play();
+                        // Play notification sound with fallback
+                        try {
+                            new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play()
+                                .catch(() => {
+                                    // Fallback: Create a simple beep sound
+                                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                                    const oscillator = audioContext.createOscillator();
+                                    const gainNode = audioContext.createGain();
+                                    
+                                    oscillator.connect(gainNode);
+                                    gainNode.connect(audioContext.destination);
+                                    
+                                    oscillator.frequency.value = 800;
+                                    oscillator.type = 'sine';
+                                    
+                                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                                    
+                                    oscillator.start(audioContext.currentTime);
+                                    oscillator.stop(audioContext.currentTime + 1);
+                                });
+                        } catch (error) {
+                            console.log('Timer completed!');
+                        }
+                        alert('Timer finished!');
                     }
                 }, 1000);
             }
@@ -1102,8 +1245,12 @@
         function setPreset(minutes) {
             currentPreset = minutes;
             resetTimer();
+            // Update active button
             document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.classList.toggle('active', parseInt(btn.dataset.time) === minutes);
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.time) === minutes) {
+                    btn.classList.add('active');
+                }
             });
         }
 
@@ -1111,6 +1258,17 @@
         document.getElementById('startTimer').addEventListener('click', startTimer);
         document.getElementById('pauseTimer').addEventListener('click', pauseTimer);
         document.getElementById('resetTimer').addEventListener('click', resetTimer);
+        
+        // Music player event listeners
+        document.getElementById('playPauseBtn').addEventListener('click', togglePlayPause);
+        document.getElementById('prevBtn').addEventListener('click', playPrevious);
+        document.getElementById('nextBtn').addEventListener('click', playNext);
+        document.getElementById('addYouTubeBtn').addEventListener('click', addYouTubeTrack);
+        document.getElementById('addLocalBtn').addEventListener('click', () => {
+            document.getElementById('localFile').click();
+        });
+        
+        // Preset buttons
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', () => setPreset(parseInt(btn.dataset.time)));
         });
@@ -1162,22 +1320,23 @@
         }
 
         // Initialize components
-        document.addEventListener('DOMContentLoaded', () => {
-            if (checkLogin()) {
-                createBackgroundShapes();
-                loadPlaylist();
-                createWaveBars();
-                initTimer();
-                initChat();
-            }
-        });
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     if (checkLogin()) {
+        //         createBackgroundShapes();
+        //         loadPlaylist();
+        //         createWaveBars();
+        //         initTimer();
+        //         initChat();
+        //     }
+        // });
 
         // GroupMe Chat Integration
         let groupMeToken = localStorage.getItem('groupMeToken');
         let groupMeGroupId = null;
         let groupMeUserId = null;
 
-        function connectGroupMe() {
+        // Make GroupMe functions global
+        window.connectGroupMe = function() {
             const token = document.getElementById('groupmeToken').value.trim();
             if (!token) {
                 alert('Please enter your GroupMe Access Token');
@@ -1279,7 +1438,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function sendMessage() {
+        window.sendMessage = function() {
             if (!groupMeGroupId) {
                 alert('Please connect to GroupMe first');
                 return;
@@ -1338,6 +1497,42 @@
                 container.appendChild(bar);
             }
         }
+
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize timer display
+            resetTimer();
+            
+            // Set default active preset
+            setPreset(25);
+            
+            // Initialize background animations
+            createBackgroundShapes();
+            
+            // Initialize wave bars
+            createWaveBars();
+            
+            // Load saved playlist
+            loadPlaylist();
+            
+            // Set initial volume
+            const volumeControl = document.getElementById('volumeControl');
+            if (volumeControl) {
+                volumeControl.value = 50;
+            }
+            
+            // Add Enter key support for YouTube URL input
+            const youtubeUrlInput = document.getElementById('youtubeUrl');
+            if (youtubeUrlInput) {
+                youtubeUrlInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        addYouTubeTrack();
+                    }
+                });
+            }
+            
+            console.log('CramJam app initialized successfully');
+        });
     </script>
 </body>
 </html> 

@@ -6,31 +6,122 @@
     <title>CramJam</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Navigation Menu Styles */
+        .nav-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(28, 28, 28, 0.9);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: 1px solid rgba(147, 112, 219, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(147, 112, 219, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(147, 112, 219, 0.3);
+        }
+
+        .nav-btn.active {
+            background: #9370DB;
+            border-color: #9370DB;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+
         .app-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 15px;
-            max-height: 100vh;
-            overflow: hidden;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         .main-section {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: auto;
+            width: 100vw;
+            box-sizing: border-box;
+            padding: 20px 200px 20px 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Custom Scrollbar Styles */
+        html {
+            height: 100%;
+            overflow-x: hidden;
             overflow-y: auto;
-            padding-right: 5px;
+        }
+        
+        body {
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
-        .main-section::-webkit-scrollbar {
-            width: 5px;
+        /* Main scrollbar only */
+        ::-webkit-scrollbar {
+            width: 12px;
         }
 
-        .main-section::-webkit-scrollbar-thumb {
-            background: rgba(147, 112, 219, 0.3);
-            border-radius: 5px;
+        ::-webkit-scrollbar-track {
+            background: rgba(28, 28, 28, 0.5);
+            border-radius: 6px;
         }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #9370DB, #b19cd9);
+            border-radius: 6px;
+            border: 2px solid rgba(28, 28, 28, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #b19cd9, #d8c7f0);
+            box-shadow: 0 0 10px rgba(147, 112, 219, 0.4);
+        }
+
+        /* Welcome Page Styles */
 
         .player-header {
             display: flex;
@@ -224,7 +315,6 @@
 
         .chat-messages {
             flex: 1;
-            overflow-y: auto;
             padding-right: 5px;
             display: flex;
             flex-direction: column;
@@ -381,152 +471,368 @@
             line-height: 1.5;
             padding: 10px;
         }
+
+        /* Welcome Page Styles */
+        .welcome-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 50px 40px;
+            background: linear-gradient(135deg, rgba(28, 28, 28, 0.95), rgba(147, 112, 219, 0.1));
+            border-radius: 25px;
+            border: 1px solid rgba(147, 112, 219, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(147, 112, 219, 0.1), transparent);
+            z-index: 1;
+        }
+
+        .welcome-header .section-title {
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-header .logo {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 15px rgba(147, 112, 219, 0.5));
+        }
+
+        .welcome-header h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(135deg, #9370DB, #b19cd9, #d8c7f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            text-shadow: 0 0 30px rgba(147, 112, 219, 0.3);
+        }
+        
+
+        .mission-content {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+        }
+
+        .mission-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding: 0 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mission-card {
+            background: linear-gradient(135deg, #9d5bb8, #7f4da3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            min-height: 200px;
+            width: 100%;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(147, 112, 219, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .mission-card:hover::before {
+            opacity: 1;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(147, 112, 219, 0.7);
+            box-shadow: 0 15px 40px rgba(147, 112, 219, 0.3);
+        }
+
+        .mission-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 0 10px rgba(147, 112, 219, 0.3));
+        }
+
+        .mission-card h2 {
+            color: #9370DB;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            font-weight: 600;
+        }
+
+        .mission-card p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            position: relative;
+            z-index: 2;
+            margin: 0;
+        }
+
+        .get-started-section {
+            text-align: center;
+            padding: 50px 40px;
+            background: linear-gradient(135deg, rgba(28, 28, 28, 0.95), rgba(147, 112, 219, 0.1));
+            border-radius: 25px;
+            border: 1px solid rgba(147, 112, 219, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .get-started-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at bottom, rgba(147, 112, 219, 0.1), transparent);
+            z-index: 1;
+        }
+
+        .get-started-section h2 {
+            color: #9370DB;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            font-weight: 600;
+        }
+
+        .get-started-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .quick-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+        
+
+        .quick-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 35px 30px;
+            background: linear-gradient(135deg, rgba(147, 112, 219, 0.15), rgba(147, 112, 219, 0.05));
+            border: 1px solid rgba(147, 112, 219, 0.4);
+            border-radius: 20px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.4s ease;
+            min-width: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(147, 112, 219, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .quick-link:hover::before {
+            opacity: 1;
+        }
+
+        .quick-link:hover {
+            background: linear-gradient(135deg, rgba(147, 112, 219, 0.25), rgba(147, 112, 219, 0.1));
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(147, 112, 219, 0.4);
+            border-color: rgba(147, 112, 219, 0.7);
+        }
+
+        .link-icon {
+            font-size: 2.5rem;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.3));
+        }
+
+        .link-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-header h1 {
+                font-size: 2rem;
+            }
+            
+            .mission-section {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+            
+            .mission-card {
+                max-width: 100%;
+            }
+            
+            .quick-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .app-container {
+                padding: 10px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .mission-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            .mission-section {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="background-shapes" id="backgroundShapes"></div>
+    
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a href="index.html" class="nav-btn active">
+            <span class="nav-icon">🏠</span>Home
+        </a>
+        <a href="music-player.html" class="nav-btn">
+            <span class="nav-icon">🎵</span>Music Player
+        </a>
+        <a href="todo-list.html" class="nav-btn">
+            <span class="nav-icon">📝</span>Todo List
+        </a>
+        <a href="contact-support.html" class="nav-btn">
+            <span class="nav-icon">💬</span>Support
+        </a>
+    </nav>
+    
     <div class="logout-toast" id="logoutToast">Logging out...</div>
     
     <div class="app-container">
         <div class="main-section">
-            <div class="player-container">
-                <div class="player-header">
+            <div class="welcome-container">
+                <div class="welcome-header">
                     <div class="section-title">
                         <span class="logo">🎵</span>
-                        <h1>CramJam</h1>
-                    </div>
-                    <div class="player-nav">
-                        <a href="todo-list.html" class="nav-link">📝 Tasks</a>
-                        <a href="login.html" class="nav-link">🚪 Logout</a>
+                        <h1>Welcome to CramJam</h1>
                     </div>
                 </div>
 
-                <div class="section-content">
-                    <div class="timer-section">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <span class="timer-icon">⏱️</span>
-                                <h2>Pomodoro Timer</h2>
-                            </div>
+                <div class="mission-content">
+                    <div class="mission-section">
+                        <div class="mission-card">
+                            <span class="mission-icon">🎯</span>
+                            <h2>Our Mission</h2>
+                            <p>CramJam is your ultimate study companion, designed to maximize your productivity and learning efficiency. We combine proven study techniques with modern technology to help you achieve your academic goals.</p>
                         </div>
-                        <div class="timer-display" id="timerDisplay">25:00</div>
-                        <div class="encouragement-message" id="timerEncouragement">You've got this! Stay focused! 💪</div>
-                        <div class="control-group">
-                            <button class="btn" id="startTimer">
-                                <span class="control-icon">▶️</span>Start
-                            </button>
-                            <button class="btn" id="pauseTimer" disabled>
-                                <span class="control-icon">⏸️</span>Pause
-                            </button>
-                            <button class="btn" id="resetTimer">
-                                <span class="control-icon">🔄</span>Reset
-                            </button>
+
+                        <div class="mission-card">
+                            <span class="mission-icon">⚡</span>
+                            <h2>Boost Your Focus</h2>
+                            <p>Harness the power of the Pomodoro Technique with our integrated timer system. Stay focused during study sessions and take strategic breaks to maintain peak mental performance.</p>
                         </div>
-                        <div class="timer-type" id="timerType">Pomodoro</div>
-                        <div class="pomodoro-count" id="pomodoroCount"></div>
-                        <div class="control-group timer-modes">
-                            <button class="btn preset-btn active" id="pomodoroBtn">
-                                <span class="preset-icon">🍅</span>Pomodoro
-                            </button>
-                            <button class="btn preset-btn" id="shortBreakBtn">
-                                <span class="preset-icon">☕</span>Short Break
-                            </button>
-                            <button class="btn preset-btn" id="longBreakBtn">
-                                <span class="preset-icon">🌴</span>Long Break
-                            </button>
+
+                        <div class="mission-card">
+                            <span class="mission-icon">🎵</span>
+                            <h2>Perfect Study Environment</h2>
+                            <p>Create your ideal study atmosphere with our music player featuring focus-enhancing playlists, ambient sounds, and customizable audio environments tailored for deep concentration.</p>
+                        </div>
+
+                        <div class="mission-card">
+                            <span class="mission-icon">✅</span>
+                            <h2>Organize Your Success</h2>
+                            <p>Track your progress with our intuitive task management system. Set goals, monitor completion rates, and celebrate your achievements as you advance toward academic excellence.</p>
+                        </div>
+
+                        <div class="mission-card">
+                            <span class="mission-icon">💬</span>
+                            <h2>We're Here to Help</h2>
+                            <p>Need assistance? Our support team is ready to help you make the most of CramJam. Get tips, troubleshoot issues, and connect with fellow learners in our community.</p>
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <input type="text" class="input" id="youtubeUrl" placeholder="🎥 Enter YouTube URL">
-                        <button class="btn" onclick="addYouTubeTrack()">
-                            <span class="section-icon">➕</span>Add YouTube
-                        </button>
-                    </div>
-
-                    <div class="input-group">
-                        <input type="file" id="localFile" accept="audio/*,video/*" style="display: none" multiple>
-                        <button class="btn" onclick="document.getElementById('localFile').click()">
-                            <span class="section-icon">📁</span>Add Local Files
-                        </button>
-                    </div>
-
-                    <div class="now-playing">
-                        <div class="section-header">
-                            <div class="section-title">
-                                <span class="section-icon">🎵</span>
-                                <h3>Now Playing</h3>
-                            </div>
-                        </div>
-                        <p id="currentTrack">No track selected</p>
-                        <div class="encouragement-message" id="playerEncouragement">Keep going! Every minute counts! ⭐</div>
-                    </div>
-
-                    <div class="player">
-                        <video id="videoPlayer" controls style="display: none;"></video>
-                        <div class="audio-visualizer" style="display: none;">
-                            <div class="wave-container" id="waveContainer"></div>
-                            <div class="visualizer-overlay">
-                                <span class="visualizer-icon">🎵</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="controls">
-                        <div class="control-group">
-                            <button class="btn" onclick="playPrevious()">
-                                <span class="control-icon">⏮️</span>
-                            </button>
-                            <button class="btn" id="playPauseBtn" onclick="togglePlayPause()">
-                                <span class="control-icon">▶️</span>
-                            </button>
-                            <button class="btn" onclick="playNext()">
-                                <span class="control-icon">⏭️</span>
-                            </button>
-                            <input type="range" class="input" id="volumeControl" min="0" max="100" value="100">
-                            <span class="control-icon">🔊</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="main-section">
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title">
-                        <span class="section-icon">📋</span>
-                        <h3>Playlist DEMO</h3>
-                    </div>
-                </div>
-                <div class="encouragement-message" id="playlistEncouragement">Your study playlist is ready! Let's make progress! 🚀</div>
-                <div class="section-content" id="playlist">
-                    <!-- Playlist items will be added here -->
-                </div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title">
-                        <span class="section-icon">💬</span>
-                        <h3>Encouragement</h3>
-                    </div>
-                </div>
-                <div class="section-content">
-                    <div class="encouragement-container">
-                        <div id="encouragementMessage" class="encouragement-text">
-                            You're capable of more than you know! Keep pushing forward! 💪
-                        </div>
-                        <div class="encouragement-btn-wrapper">
-                            <button id="refreshEncouragement" class="encouragement-btn" aria-label="Get new encouragement">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                    <path d="M3 3v5h5"></path>
-                                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
-                                    <path d="M16 16h5v5"></path>
-                                </svg>
-                            </button>
-                            <span class="tooltip">Click for more encouragement</span>
+                    <div class="get-started-section">
+                        <h2>Ready to Transform Your Study Sessions?</h2>
+                        <p>Choose your tool and start your journey to academic success:</p>
+                        <div class="quick-links">
+                            <a href="music-player.html" class="quick-link">
+                                <span class="link-icon">🎵</span>
+                                <span class="link-text">Start Music Player</span>
+                            </a>
+                            <a href="todo-list.html" class="quick-link">
+                                <span class="link-icon">📝</span>
+                                <span class="link-text">Manage Tasks</span>
+                            </a>
+                            <a href="contact-support.html" class="quick-link">
+                                <span class="link-icon">💬</span>
+                                <span class="link-text">Get Support</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -534,7 +840,7 @@
         </div>
     </div>
 
-    <!-- Main application script -->
+    <!-- Background Animation Script -->
     <script type="module">
         // Import modules
         import { initTimer } from './js/timer.js';
@@ -866,11 +1172,3 @@
 
         // Update encouragement message periodically
         setInterval(updateEncouragementMessage, 30000); // Change message every 30 seconds
-
-        // Initialize message on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateEncouragementMessage();
-        });
-    </script>
-</body>
-</html> 
